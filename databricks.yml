@@ -1,3 +1,4 @@
+
 bundle:
   name: data-cleaning-project
 
@@ -16,34 +17,71 @@ resources:
 
       tasks:
         - task_key: clean_table
-          job_cluster_key: serverless_replacement_cluster   # ← now uses our fixed cluster
           spark_python_task:
             python_file: ./src/cleaning_notebook.py
+          environment_key: default   # serverless environment
 
-      # Replace serverless environment with a regular job cluster that forces CURRENT channel
-      job_clusters:
-        - job_cluster_key: serverless_replacement_cluster
-          new_cluster:
-            spark_version: 15.4.x-scala2.12   # or 16.x / 17.x if you prefer, Community supports them
-            node_type_id: i3.xlarge          # standard Community Edition node type
-            runtime_engine: STANDARD
-            num_workers: 0                    # single-node (driver only) is enough for most cleaning jobs
-            autoscale:                        # optional: if you want a bit more power
-              min_workers: 0
-              max_workers: 2
+      # This is the ONLY supported compute type in Community Edition
+      environments:
+        - environment_key: default
+          spec:
+            client: "1"                                      # serverless = required
+            channel:                                         # ← THIS FIXES the REPL error
+              name: current                                  # forces the supported channel
 
-            # THIS IS THE CRITICAL LINE FOR COMMUNITY EDITION
-            channel:
-              name: CURRENT                   # forces the supported classic REPL channel
-
-      # Remove the serverless environment entirely (it was causing the Client-1 error)
-      # environments: ...
-
-# Optional: uncomment if you want failure notifications
+# Optional: uncomment if you want email alerts
 #      email_notifications:
 #        on_failure:
 #          - your-email@example.com
 
+# bundle:
+#   name: data-cleaning-project
+
+# targets:
+#   dev:
+#     default: true
+#     workspace:
+#       host: https://dbc-7ced0760-5696.cloud.databricks.com
+
+# resources:
+#   jobs:
+#     data_cleaning_job:
+#       name: "Data Cleaning Job - Community Edition"
+#       max_concurrent_runs: 1
+#       timeout_seconds: 3600
+
+#       tasks:
+#         - task_key: clean_table
+#           job_cluster_key: serverless_replacement_cluster   # ← now uses our fixed cluster
+#           spark_python_task:
+#             python_file: ./src/cleaning_notebook.py
+
+#       # Replace serverless environment with a regular job cluster that forces CURRENT channel
+#       job_clusters:
+#         - job_cluster_key: serverless_replacement_cluster
+#           new_cluster:
+#             spark_version: 15.4.x-scala2.12   # or 16.x / 17.x if you prefer, Community supports them
+#             node_type_id: i3.xlarge          # standard Community Edition node type
+#             runtime_engine: STANDARD
+#             num_workers: 0                    # single-node (driver only) is enough for most cleaning jobs
+#             autoscale:                        # optional: if you want a bit more power
+#               min_workers: 0
+#               max_workers: 2
+
+#             # THIS IS THE CRITICAL LINE FOR COMMUNITY EDITION
+#             channel:
+#               name: CURRENT                   # forces the supported classic REPL channel
+
+#       # Remove the serverless environment entirely (it was causing the Client-1 error)
+#       # environments: ...
+
+# # Optional: uncomment if you want failure notifications
+# #      email_notifications:
+# #        on_failure:
+# #          - your-email@example.com
+
+
+# deploy working in the below code:
 # bundle:
 #   name: data-cleaning-project
 
@@ -76,5 +114,7 @@ resources:
 # #      email_notifications:
 # #        on_failure:
 # #          - your-email@example.com
+
+# ---  ---- ---- ----- ----- ------ ---- ---- ----#
 # #attempt 2
 # #attempt 3
