@@ -1,4 +1,3 @@
-
 bundle:
   name: data-cleaning-project
 
@@ -17,17 +16,51 @@ resources:
 
       tasks:
         - task_key: clean_table
-          spark_python_task:
-            python_file: ./src/cleaning_notebook.py
-          environment_key: default   # serverless environment
+          # ← Use notebook_task instead of spark_python_task
+          notebook_task:
+            notebook_path: ./src/cleaning_notebook.py   # ← same file, but treated as notebook
+            # optional: base_parameters if you need to pass args
+            # base_parameters:
+            #   some_param: "value"
 
-      # This is the ONLY supported compute type in Community Edition
-      environments:
-        - environment_key: default
-          spec:
-            client: "1"                                      # serverless = required
-            channel:                                         # ← THIS FIXES the REPL error
-              name: current                                  # forces the supported channel
+      # Completely remove any environments / job_clusters / existing_cluster_id
+      # Serverless is auto-selected and works for notebook tasks in CE
+
+# Optional email on failure
+#      email_notifications:
+#        on_failure:
+#          - your-email@example.com
+
+# the below code works absolutely fine with deploy:
+# bundle:
+#   name: data-cleaning-project
+
+# targets:
+#   dev:
+#     default: true
+#     workspace:
+#       host: https://dbc-7ced0760-5696.cloud.databricks.com
+
+# resources:
+#   jobs:
+#     data_cleaning_job:
+#       name: "Data Cleaning Job - Community Edition"
+#       max_concurrent_runs: 1
+#       timeout_seconds: 3600
+
+#       tasks:
+#         - task_key: clean_table
+#           spark_python_task:
+#             python_file: ./src/cleaning_notebook.py
+#           environment_key: default   # serverless environment
+
+#       # This is the ONLY supported compute type in Community Edition
+#       environments:
+#         - environment_key: default
+#           spec:
+#             client: "1"                                      # serverless = required
+#             channel:                                         # ← THIS FIXES the REPL error
+#               name: current                                  # forces the supported channel
 
 # Optional: uncomment if you want email alerts
 #      email_notifications:
