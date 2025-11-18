@@ -1,0 +1,34 @@
+name: Deploy & Run on Databricks (Community Edition)
+
+# Trigger on every push to main (or any branch you use)
+on:
+  push:
+    branches:
+      - main          # change if you use 'master' or 'dev'
+  workflow_dispatch:   # allows you to run it manually from GitHub UI
+
+jobs:
+  deploy-and-run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Databricks CLI
+        uses: databricks/setup-cli@main   # official action, installs latest CLI automatically
+
+      - name: Validate bundle
+        run: databricks bundle validate
+
+      - name: Deploy bundle to Databricks Community Edition
+        run: databricks bundle deploy   # no -t needed since we have only "dev" and it's default
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}   # your community workspace URL
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }} # your PAT
+
+      - name: Run the data cleaning job immediately after deploy (optional but recommended)
+        run: databricks bundle run data_cleaning_job --wait
+        env:
+          DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}

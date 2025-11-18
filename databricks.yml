@@ -1,0 +1,32 @@
+bundle:
+  name: data-cleaning-project
+
+targets:
+  dev:
+    default: true
+    workspace:
+      host: https://dbc-7ced0760-5696.cloud.databricks.com
+
+resources:
+  jobs:
+    data_cleaning_job:
+      name: "Data Cleaning Job - Community Edition"
+      max_concurrent_runs: 1
+      timeout_seconds: 3600
+
+      tasks:
+        - task_key: clean_table
+          spark_python_task:
+            python_file: ./src/cleaning_notebook.py
+          environment_key: default   # ← required for spark_python_task on serverless
+
+      # Define a minimal serverless environment (no dependencies needed)
+      environments:
+        - environment_key: default
+          spec:
+            client: "1"   # means "serverless"
+
+# Optional: remove email_notifications if you don't want them
+#      email_notifications:
+#        on_failure:
+#          - your-email@example.com
