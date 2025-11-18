@@ -23,19 +23,30 @@ jobs:
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
-
+      
       - name: Deploy bundle to Databricks Community Edition
         run: databricks bundle deploy
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
-      - name: Run the data cleaning job immediately after deploy (optional)
-        if: success()
-        run: databricks bundle run data_cleaning_job --wait
+      - name: Run the data cleaning job (waits until finished)
+        run: databricks bundle run data_cleaning_job
         env:
           DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
           DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      # - name: Deploy bundle to Databricks Community Edition
+      #   run: databricks bundle deploy
+      #   env:
+      #     DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      #     DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+
+      # - name: Run the data cleaning job immediately after deploy (optional)
+      #   if: success()
+      #   run: databricks bundle run data_cleaning_job
+      #   env:
+      #     DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      #     DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       # - name: Validate bundle
       #   run: databricks bundle validate
 
